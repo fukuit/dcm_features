@@ -1,6 +1,6 @@
 ''' 形状ファイルを読み込み皮膚表面がフラットになるdicom画像を作成する
 '''
-import dicom
+import pydicom
 import numpy as np
 import os
 import sys
@@ -23,7 +23,7 @@ def retrieve_dicom(dicomdir):
 def read_labeldcm(label):
     ''' 形状ファイルを読み込みnumpy array形式の画像データを得る
     '''
-    label_dcm = dicom.read_file(label)
+    label_dcm = pydicom.dcmread(label)
     if label_dcm[0x0008, 0x0005].value == 'ISO_IR6':
         label_dcm[0x0008, 0x0005].value == 'IOS_IR 6'
     label_dcm.SamplesPerPixel = 1
@@ -35,13 +35,13 @@ def read_labeldcm(label):
 def deformation_dicom(list_dicom, mask, outdir):
     ''' maskの形状に従いlist_dicom中のdicom画像を変形させる
     '''
-    ref_dcm = dicom.read_file(list_dicom[0])
+    ref_dcm = pydicom.dcmread(list_dicom[0])
     depth = len(list_dicom)
     height = ref_dcm.Rows
     width = ref_dcm.Columns
     dcms_array = np.empty((depth, height, width), dtype=ref_dcm.pixel_array.dtype)
     for d in list_dicom:
-        dcm = dicom.read_file(d)
+        dcm = pydicom.dcmread(d)
         idx = list_dicom.index(d)
         array = dcm.pixel_array
         array1 = np.zeros(np.shape(array))
